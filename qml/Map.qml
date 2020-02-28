@@ -3,7 +3,7 @@ import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.12
 import QtPositioning 5.14
 import QtLocation 5.14
-import QtQuick.Controls.Material 2.14
+import QtQuick.Controls.Material 2.12
 
 Page {
     width: parent.width

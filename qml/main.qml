@@ -33,10 +33,13 @@ ApplicationWindow {
             }
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
-                if (stackView.depth > 1) {
-                    stackView.pop()
-                } else {
-                    drawer.open()
+                if (stackView.depth > 1)
+                {
+                    stackView.pop();
+                }
+                else
+                {
+                    drawer.open();
                 }
             }
         }
@@ -58,19 +61,35 @@ ApplicationWindow {
             anchors.fill: parent
 
             ItemDelegate {
-                text: qsTr("Page 1")
+                text: qsTr("Température")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Map.qml")
+                    stackView.push("Temperature.qml")
                     drawer.close()
                 }
             }
             ItemDelegate {
-                text: qsTr("Page 2")
+                text: qsTr("Pression")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page2Form.ui.qml")
-                    drawer.close()
+                    stackView.push("Pressure.qml");
+                    drawer.close();
+                }
+            }
+            ItemDelegate {
+                text: qsTr("Altitude")
+                width: parent.width
+                onClicked: {
+                    stackView.push("Altitude.qml");
+                    drawer.close();
+                }
+            }
+            ItemDelegate {
+                text: qsTr("Géolocalisation")
+                width: parent.width
+                onClicked: {
+                    stackView.push("Map.qml");
+                    drawer.close();
                 }
             }
         }
@@ -78,7 +97,7 @@ ApplicationWindow {
 
     StackView {
         id: stackView
-        initialItem: "HomeForm.qml"
+        initialItem: "Home.qml"
         anchors.fill: parent
     }
 }
