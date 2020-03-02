@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QtAndroid>
 #include "statusbar.h"
 
 int main(int argc, char *argv[])
@@ -19,6 +20,8 @@ int main(int argc, char *argv[])
 			QCoreApplication::exit(-1);
 	}, Qt::QueuedConnection);
 	engine.load(url);
+
+	QtAndroid::hideSplashScreen();
 
 	return app.exec();
 }
