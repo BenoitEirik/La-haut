@@ -15,5 +15,12 @@
         <file>images/pressure.png</file>
         <file>images/north.png</file>
         <file>images/track.png</file>
+        <file>images/sigfox_cloud.png</file>
+        <file>images/sigfox_logo.png</file>
+        <file>images/sigfox_cloud_off.png</file>
+        <file>images/sigfox_cloud_on.png</file>
+        <file>images/hide.png</file>
+        <file>images/radio.png</file>
+        <file>images/seqNumber.png</file>
     </qresource>
 </RCC>

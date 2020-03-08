@@ -12,6 +12,8 @@ ApplicationWindow {
     title: qsTr("Là-haut")
     color: "#2196F3"
 
+    //property bool sigfoxStatus: false
+
     StatusBar {
         theme: StatusBar.Dark
         color: "#087DDA"
@@ -49,6 +51,21 @@ ApplicationWindow {
             font.pixelSize: 20
             color: "white"
             anchors.centerIn: parent
+        }
+
+        ToolButton {
+            id: sigfoxButton
+            anchors.right: parent.right
+            anchors.rightMargin: 5
+            Image {
+                source: sigfox.getDevice() !== "_ _" ? "qrc:/images/sigfox_cloud_on.png" : "qrc:/images/sigfox_cloud_off.png"
+                anchors.centerIn: parent
+                width: parent.height * 0.8
+                height: parent.width * 0.8
+            }
+            onClicked: {
+                stackView.push("Login.qml");
+            }
         }
     }
 

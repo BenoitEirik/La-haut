@@ -2,7 +2,7 @@ QT += qml quick location positioning network
 
 CONFIG += c++11
 include(statusbar/statusbar.pri)
-#include(android_openssl-master/openssl.pri)
+android:include(android_openssl-master/openssl.pri)
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

@@ -1,7 +1,10 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QtAndroid>
+#include <QtNetwork>
+#include <QQmlContext>
 #include "statusbar.h"
+#include "sigfox.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +23,13 @@ int main(int argc, char *argv[])
 			QCoreApplication::exit(-1);
 	}, Qt::QueuedConnection);
 	engine.load(url);
+
+	// API request
+	qDebug() << "[!] TEST API access";
+	Sigfox instance;
+	instance.initAPIaccess();
+	instance.httpRequest();
+	engine.rootContext()->setContextProperty("sigfox", &instance);
 
 	QtAndroid::hideSplashScreen();
 

@@ -7,5 +7,6 @@
         <file>qml/Pressure.qml</file>
         <file>qml/Temperature.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>qml/Login.qml</file>
     </qresource>
 </RCC>
