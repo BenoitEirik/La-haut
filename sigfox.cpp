@@ -68,6 +68,8 @@ void Sigfox::setCredentials(QString sUser, QString sPwd)
 
 void Sigfox::httpRequest()
 {
+	onRequestStatus = true;
+
 	if (!APIaccess)
 	{
 		if(DEBUG) qDebug() << "[!] No APIaccess";
@@ -93,6 +95,8 @@ void Sigfox::httpRequest()
 	// GET request
 	QNetworkRequest request(msgUrl);
 	networkManager->get(request);
+
+	onRequestStatus = false;
 }
 
 
@@ -105,7 +109,13 @@ void Sigfox::parsingData(QNetworkReply* reply)
 	if(jsError.error != QJsonParseError::NoError)
 	{
 		if(DEBUG) qDebug() << "[!] QJsonParseError: " << jsError.error;
+		status = false;
 		return;
+	}
+	else
+	{
+		// change status connection to the server
+		status = false;
 	}
 
 	// {"data":[{"device":{"id":"2EDED7"},"time":1583360784000,"data":"6060606060606060606000"
@@ -179,4 +189,16 @@ QString Sigfox::getSeqNumber()
 		return "_ _";
 	}
 	else return QString::number(seqNumber);
+}
+
+bool Sigfox::getStatus()
+{
+	if(!status) return false;
+	return status;
+}
+
+bool Sigfox::getRequestStatus()
+{
+	if(!onRequestStatus) return false;
+	return onRequestStatus;
 }

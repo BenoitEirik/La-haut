@@ -16,6 +16,16 @@ int main(int argc, char *argv[])
 	qmlRegisterType<StatusBar>("StatusBar", 0, 1, "StatusBar");
 
 	QQmlApplicationEngine engine;
+
+	// API request
+	if(DEBUG) qDebug() << "[!] TEST API access";
+	Sigfox instance;
+	instance.initAPIaccess();
+	instance.httpRequest();
+	engine.rootContext()->setContextProperty("sigfox", &instance);
+
+
+
 	const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 	QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
 					 &app, [url](QObject *obj, const QUrl &objUrl) {
@@ -23,13 +33,6 @@ int main(int argc, char *argv[])
 			QCoreApplication::exit(-1);
 	}, Qt::QueuedConnection);
 	engine.load(url);
-
-	// API request
-	qDebug() << "[!] TEST API access";
-	Sigfox instance;
-	instance.initAPIaccess();
-	instance.httpRequest();
-	engine.rootContext()->setContextProperty("sigfox", &instance);
 
 	QtAndroid::hideSplashScreen();
 

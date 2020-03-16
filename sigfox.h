@@ -30,14 +30,20 @@ public slots:
 	QString getDevice();
 	QString getData();
 	QString getSeqNumber();
+	bool getStatus();
+	bool getRequestStatus();
 
 signals:
 
 private:
+	// network
 	QNetworkAccessManager *networkManager;
 	QAuthenticator access;
+	bool onRequestStatus;
+
 
 	bool APIaccess;
+	bool status;
 	QString user;
 	QString pwd;
 	QUrl msgUrl;
