@@ -18,10 +18,8 @@ int main(int argc, char *argv[])
 	QQmlApplicationEngine engine;
 
 	// API request
-	if(DEBUG) qDebug() << "[!] TEST API access";
 	Sigfox instance;
-	instance.initAPIaccess();
-	instance.httpRequest();
+	instance.start();
 	engine.rootContext()->setContextProperty("sigfox", &instance);
 
 

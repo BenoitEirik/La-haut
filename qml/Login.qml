@@ -15,6 +15,8 @@ Page {
         repeat: true
         running: true
         triggeredOnStart: {
+                user.text = sigfox.getUser();
+                pwd.text = sigfox.getPwd();
                 device.text = sigfox.getDevice();
                 seqNumber.text = sigfox.getSeqNumber();
         }
@@ -23,15 +25,11 @@ Page {
             {
                 device.text = sigfox.getDevice();
                 seqNumber.text = sigfox.getSeqNumber();
-                sigfox.httpRequest();
+                //sigfox.httpRequest();
             }
         }
     }
-    /*/
-    onTimerSignal: {
 
-    }
-    /*/
 
     Rectangle {
         id: login
@@ -78,7 +76,7 @@ Page {
                     //background: Rectangle { color: "#EEEEEE" }
                 }
                 ToolButton {
-                    anchors.right: parent.right
+                    anchors.left: pwd.right
                     anchors.verticalCenter: pwd.verticalCenter
                     Image {
                         id: hidePwd

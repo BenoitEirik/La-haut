@@ -8,8 +8,8 @@ Sigfox::Sigfox(QObject *parent) : QObject(parent)
 void Sigfox::initAPIaccess()
 {
 	// init variables
-	device = "_ _";
-	data = "_ _";
+	device = "__";
+	data = "__";
 	seqNumber = 0;
 	msgUrl = "https://api.sigfox.com/v2/devices/2EDED7/messages";
 
@@ -115,7 +115,7 @@ void Sigfox::parsingData(QNetworkReply* reply)
 	else
 	{
 		// change status connection to the server
-		status = false;
+		status = true;
 	}
 
 	// {"data":[{"device":{"id":"2EDED7"},"time":1583360784000,"data":"6060606060606060606000"
@@ -127,6 +127,15 @@ void Sigfox::parsingData(QNetworkReply* reply)
 
 	// "data"
 	data = array_msg[0].toObject()["data"].toString();
+	lat = (data.mid(0,6)).toDouble() / 10000;
+	lng = (data.mid(6,6)).toDouble() / 10000;
+	alt = (data.mid(12,4)).toDouble() / 100;
+	temp = (data.mid(17,2)).toInt();
+	if((data.mid(16,1)).toInt() == 1)
+	{
+		temp = temp - (2 * temp);
+	}
+	pressure = (data.mid(19,4)).toInt();
 
 	// "seqNumber"
 	seqNumber = array_msg[0].toObject()["seqNumber"].toInt();
@@ -154,6 +163,35 @@ void Sigfox::provideAuthentification(QNetworkReply* reply, QAuthenticator* basic
 	if(reply->readAll() == "") return;
 }
 
+
+QString Sigfox::convertDDtoDMS(double coord)
+{
+	int deg = (int)(coord);
+	int min = (int)((coord - (double)deg) * 60);
+	int sec = ((((coord - (double)deg) * 60) - (double)min) * 60 );
+
+	QString dms = QString::number(deg);
+	dms += "° ";
+	dms += QString::number(min);
+	dms += "' ";
+	dms += QString::number(sec);
+	dms += "\"";
+
+	return dms;
+}
+
+
+void Sigfox::start()
+{
+	if(!APIaccess) initAPIaccess();
+
+	QTimer *timer = new QTimer();
+	if(getRequestStatus() == false)
+		connect(timer, SIGNAL(timeout()), this, SLOT(httpRequest()));
+	timer->start(3000);
+}
+
+
 /****************************************************************/
 /*                        QML interaction                       */
 /****************************************************************/
@@ -167,7 +205,7 @@ QString Sigfox::getDevice()
 {
 	if(device.isEmpty())
 	{
-		return "_ _";
+		return "__";
 	}
 	else return device;
 }
@@ -176,7 +214,7 @@ QString Sigfox::getData()
 {
 	if(data.isEmpty())
 	{
-		return "_ _";
+		return "__";
 	}
 	else return data;
 }
@@ -186,7 +224,7 @@ QString Sigfox::getSeqNumber()
 {
 	if(seqNumber == 0)
 	{
-		return "_ _";
+		return "__";
 	}
 	else return QString::number(seqNumber);
 }
@@ -199,6 +237,38 @@ bool Sigfox::getStatus()
 
 bool Sigfox::getRequestStatus()
 {
+	if(DEBUG) qDebug() << "[!] onRequestStatus : " << onRequestStatus;
 	if(!onRequestStatus) return false;
 	return onRequestStatus;
+}
+
+QString Sigfox::getUser()
+{
+	if(!user.isEmpty()) return user;
+	return "";
+}
+
+QString Sigfox::getPwd()
+{
+	if(!pwd.isEmpty()) return pwd;
+	return "";
+}
+
+QString Sigfox::getSpecigicData(QString type)
+{
+	if(type == "lat")
+	{
+		return convertDDtoDMS(lat);
+	}
+	if(type == "lng")
+	{
+		return convertDDtoDMS(lng);
+	}
+	if(type == "alt") return QString::number(alt) += " km";
+	if(type == "temp") return QString::number(temp) += " °C";
+	if(type == "pressure")
+	{
+		return QString::number(pressure) += " Pa";
+	}
+	return "";
 }

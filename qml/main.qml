@@ -12,7 +12,26 @@ ApplicationWindow {
     title: qsTr("Là-haut")
     color: "#2196F3"
 
-    //property bool sigfoxStatus: false
+    Timer {
+        id: timer
+        interval: 1000
+        repeat: true
+        running: true
+        /*triggeredOnStart: {
+        }*/
+        onTriggered: {
+            if(sigfox.getStatus())
+            {
+                sigfoxButtonImg.source = "qrc:/images/sigfox_cloud_on.png";
+
+            }
+            else
+            {
+                sigfoxButtonImg.source = "qrc:/images/sigfox_cloud_off.png";
+            }
+        }
+    }
+
 
     StatusBar {
         theme: StatusBar.Dark
@@ -58,7 +77,8 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.rightMargin: 5
             Image {
-                source: sigfox.getRequestStatus() == false && sigfox.getStatus() == true ? "qrc:/images/sigfox_cloud_on.png" : "qrc:/images/sigfox_cloud_off.png"
+                id: sigfoxButtonImg
+                source: "qrc:/images/sigfox_cloud_off.png"
                 anchors.centerIn: parent
                 width: parent.height * 0.8
                 height: parent.width * 0.8
@@ -116,8 +136,5 @@ ApplicationWindow {
         id: stackView
         initialItem: "Home.qml"
         anchors.fill: parent
-
-        signal timerSignal;
-
     }
 }

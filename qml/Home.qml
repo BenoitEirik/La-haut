@@ -7,6 +7,26 @@ import QtGraphicalEffects 1.12
 Page {
     title: qsTr("Là-haut")
 
+    Timer {
+        id: timer
+        interval: 1000
+        repeat: true
+        running: true
+        /*triggeredOnStart: {
+
+        }*/
+        onTriggered: {
+            if(sigfox.getStatus())
+            {
+                temp.text = sigfox.getSpecigicData("temp");
+                pressure.text = sigfox.getSpecigicData("pressure");
+                alt.text = sigfox.getSpecigicData("alt");
+                lat.text = sigfox.getSpecigicData("lat");
+                lng.text = sigfox.getSpecigicData("lng");
+            }
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 20
@@ -49,10 +69,10 @@ Page {
                         height: parent.height
                     }
                     Label {
-                        text: "_ _ °C"
+                        id: temp
+                        text: "__ °C"
                         anchors.right: parent.right
                         color: "white"
-                        font.pixelSize: 20
                     }
                 }
             }
@@ -95,10 +115,10 @@ Page {
                         height: parent.height
                     }
                     Label {
-                        text: "_ _ Pa"
+                        id: pressure
+                        text: "__ Pa"
                         anchors.right: parent.right
                         color: "white"
-                        font.pixelSize: 20
                     }
                 }
             }
@@ -141,10 +161,10 @@ Page {
                         height: parent.height
                     }
                     Label {
-                        text: "_ _ m"
+                        id: alt
+                        text: "__ km"
                         anchors.right: parent.right
                         color: "white"
-                        font.pixelSize: 20
                     }
                 }
             }
@@ -176,6 +196,12 @@ Page {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.margins: 20
                     }
+                    Label {
+                        id: lat
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        color: "white"
+                    }
                 }
                 Rectangle {
                     Layout.fillWidth: true
@@ -186,9 +212,14 @@ Page {
                         width: parent.height
                         height: parent.height
                     }
+                    Label {
+                        id: lng
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        color: "white"
+                    }
                 }
             }
         }
     }
-
 }
