@@ -2,8 +2,8 @@
 
 Android application to retrieve sigfox data from a weather balloon.
 
-# GUI prototype
-<img src="https://user-images.githubusercontent.com/33329690/75714528-2f028700-5ccc-11ea-961b-9bf9a42cf92a.jpg" width="600" >
+# GUI
+<img src="https://user-images.githubusercontent.com/33329690/77232494-a9bf1380-6ba1-11ea-8e81-afedb6ea1064.png" width="600" >
 
 # Programming language and libraries
 - The C++ langage
