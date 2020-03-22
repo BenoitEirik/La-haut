@@ -29,6 +29,8 @@ public slots:
 	void parsingData(QNetworkReply* reply);
 	void provideAuthentification(QNetworkReply* reply, QAuthenticator* basicAuth);
 	void setCredentials(QString sUser, QString sPwd);
+	void stopAccess();
+	void startAccess();
 
 	QString convertDDtoDMS(double coord);
 
@@ -52,18 +54,21 @@ private:
 	bool onRequestStatus;
 
 
-	bool APIaccess;
-	bool status;
+	bool APIaccess = false;
+	bool status = false;
+	bool stop = false;
 	QString user;
 	QString pwd;
 	QUrl msgUrl;
 
 	// data received
-	QString device;
-	QString data;
-	int seqNumber;
+	QString data = "__";
+	QString device = "__";
+	int seqNumber = 0;
 	double lat = 0;
+	QString dirLat = "N";
 	double lng = 0;
+	QString dirLng = "E";
 	double alt = 0;
 	int temp = 0;
 	int pressure = 0;

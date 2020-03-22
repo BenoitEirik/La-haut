@@ -22,5 +22,6 @@
         <file>images/hide.png</file>
         <file>images/radio.png</file>
         <file>images/seqNumber.png</file>
+        <file>images/place.png</file>
     </qresource>
 </RCC>

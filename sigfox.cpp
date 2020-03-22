@@ -1,16 +1,30 @@
 #include "sigfox.h"
 
+//user = "5e591737319dc629c64ffbca";
+//pwd = "1c633b4d0ce05710fa21f1e2c997c7fe";
+
 Sigfox::Sigfox(QObject *parent) : QObject(parent)
 {
 
 }
 
+
+void Sigfox::start()
+{
+	if(!APIaccess) initAPIaccess();
+
+	QTimer *timer = new QTimer();
+	if(getRequestStatus() == false)
+	{
+		connect(timer, SIGNAL(timeout()), this, SLOT(httpRequest()));
+	}
+	timer->start(3000);
+}
+
+
 void Sigfox::initAPIaccess()
 {
 	// init variables
-	device = "__";
-	data = "__";
-	seqNumber = 0;
 	msgUrl = "https://api.sigfox.com/v2/devices/2EDED7/messages";
 
 	// check existant output.dat file
@@ -21,39 +35,47 @@ void Sigfox::initAPIaccess()
 		 QFile file("output.dat");
 		 if(file.open(QFile::ReadOnly))
 		 {
-			 //char buf[1024];
 			 QTextStream out(&file);
+
 			 user = out.readLine(1024);
-			 if(user.isEmpty()) return;
+			 if(user.isEmpty())
+			 {
+				 if(DEBUG) qDebug() << "[!] USER doesn't exist !";
+				 return;
+			 }
+
 			 pwd = out.readLine(1024);
-			 if(pwd.isEmpty()) return;
+			 if(pwd.isEmpty())
+			 {
+				 if(DEBUG) qDebug() << "[!] PWD doesn't exist !";
+				 return;
+			 }
+
 			 file.close();
 		 }
 	}
 	else
 	{
 		if(DEBUG) qDebug() << "[i] output.dat not finded.";
+		APIaccess = false;
 		return;
 	}
 
-	//user = "5e591737319dc629c64ffbca";
-	//pwd = "1c633b4d0ce05710fa21f1e2c997c7fe";
-
-
+	// valid API access
 	APIaccess = true;
-
-	if(DEBUG) qDebug() << "[!] Init API access";
+	if(DEBUG) qDebug() << "[!] Initialised API access !";
 }
 
 
 void Sigfox::setCredentials(QString sUser, QString sPwd)
 {
+	// set credentials variables
 	user = sUser;
 	pwd = sPwd;
-
 	msgUrl = "https://api.sigfox.com/v2/devices/2EDED7/messages";
 	APIaccess = true;
 
+	// save credentials as plain text in output
 	QFile file("output.dat");
 	if(file.open(QFile::WriteOnly))
 	{
@@ -62,12 +84,13 @@ void Sigfox::setCredentials(QString sUser, QString sPwd)
 		out << pwd;
 		file.close();
 	}
-
 }
 
 
 void Sigfox::httpRequest()
 {
+	if(stop) return;
+
 	onRequestStatus = true;
 
 	if (!APIaccess)
@@ -80,17 +103,17 @@ void Sigfox::httpRequest()
 	networkManager = new QNetworkAccessManager();
 	qDebug() << "[!] " << networkManager->networkAccessible();
 
-	// Authentification
-	QObject::connect(networkManager,
-					 SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
-					 this,
-					 SLOT(provideAuthentification(QNetworkReply*, QAuthenticator*)));
+	// Authentification SIGNAL
+	connect(networkManager,
+			SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
+			this,
+			SLOT(provideAuthentification(QNetworkReply*, QAuthenticator*)));
 
-	// switch to parsingData
-	QObject::connect(networkManager,
-					 SIGNAL(finished(QNetworkReply*)),
-					 this,
-					 SLOT(parsingData(QNetworkReply*)));
+	// switch to parsingData SIGNAL
+	connect(networkManager,
+			SIGNAL(finished(QNetworkReply*)),
+			this,
+			SLOT(parsingData(QNetworkReply*)));
 
 	// GET request
 	QNetworkRequest request(msgUrl);
@@ -118,7 +141,7 @@ void Sigfox::parsingData(QNetworkReply* reply)
 		status = true;
 	}
 
-	// {"data":[{"device":{"id":"2EDED7"},"time":1583360784000,"data":"6060606060606060606000"
+	// {"data":[{"device":{"id":"2EDED7"},"time":1583360784000,"data":"403456040345613002510300"
 	QJsonObject rootObject = jsDoc.object();
 	QJsonArray array_msg = rootObject["data"].toArray();
 
@@ -128,13 +151,12 @@ void Sigfox::parsingData(QNetworkReply* reply)
 	// "data"
 	data = array_msg[0].toObject()["data"].toString();
 	lat = (data.mid(0,6)).toDouble() / 10000;
-	lng = (data.mid(6,6)).toDouble() / 10000;
-	alt = (data.mid(12,4)).toDouble() / 100;
+	dirLat = data.mid(6,1);
+	lng = (data.mid(7,6)).toDouble() / 10000;
+	dirLng = data.mid(13,1);
+	alt = (data.mid(14,2)).toDouble();
 	temp = (data.mid(17,2)).toInt();
-	if((data.mid(16,1)).toInt() == 1)
-	{
-		temp = temp - (2 * temp);
-	}
+	if((data.mid(16,1)).toInt() == 1) temp = temp - (2 * temp);
 	pressure = (data.mid(19,4)).toInt();
 
 	// "seqNumber"
@@ -143,8 +165,13 @@ void Sigfox::parsingData(QNetworkReply* reply)
 	if(DEBUG)
 	{
 		qDebug() << "[i] [JSON] device: " << device;
-		qDebug() << "[i] [JSON] data: " << data;
 		qDebug() << "[i] [JSON] seqNumber: " << seqNumber;
+		qDebug() << "[i] [JSON] data: " << data;
+		qDebug() << "[i] [JSON] " << lat << (dirLat == 0 ? "N" : "S");
+		qDebug() << "[i] [JSON] " << lng << (dirLng == 0 ? "E" : "O");
+		qDebug() << "[i] [JSON] " << alt << " km";
+		qDebug() << "[i] [JSON] " << temp << " °C";
+		qDebug() << "[i] [JSON] " << pressure << " Pa";
 	}
 }
 
@@ -175,22 +202,23 @@ QString Sigfox::convertDDtoDMS(double coord)
 	dms += QString::number(min);
 	dms += "' ";
 	dms += QString::number(sec);
-	dms += "\"";
+	dms += "\" ";
 
 	return dms;
 }
 
 
-void Sigfox::start()
+void Sigfox::stopAccess()
 {
-	if(!APIaccess) initAPIaccess();
-
-	QTimer *timer = new QTimer();
-	if(getRequestStatus() == false)
-		connect(timer, SIGNAL(timeout()), this, SLOT(httpRequest()));
-	timer->start(3000);
+	stop = true;
+	status = false;
 }
 
+void Sigfox::startAccess()
+{
+	stop = false;
+	status = true;
+}
 
 /****************************************************************/
 /*                        QML interaction                       */
@@ -258,11 +286,11 @@ QString Sigfox::getSpecigicData(QString type)
 {
 	if(type == "lat")
 	{
-		return convertDDtoDMS(lat);
+		return convertDDtoDMS(lat) += dirLat == "0" ? "N" : "S";
 	}
 	if(type == "lng")
 	{
-		return convertDDtoDMS(lng);
+		return convertDDtoDMS(lng) += dirLng == "0" ? "E" : "O";
 	}
 	if(type == "alt") return QString::number(alt) += " km";
 	if(type == "temp") return QString::number(temp) += " °C";

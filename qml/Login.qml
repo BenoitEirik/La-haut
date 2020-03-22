@@ -21,12 +21,29 @@ Page {
                 seqNumber.text = sigfox.getSeqNumber();
         }
         onTriggered: {
-            if(sigfox.getAPIaccessStatus())
+            if(sigfox.getAPIaccessStatus() && sigfox.getStatus())
             {
+                connect.text = "Déconnexion";
                 device.text = sigfox.getDevice();
                 seqNumber.text = sigfox.getSeqNumber();
-                //sigfox.httpRequest();
             }
+            else
+            {
+                connect.text = "Connexion";
+            }
+        }
+    }
+
+    function connectManager(sUser, sPwd)
+    {
+        if(sigfox.getStatus())
+        {
+            sigfox.stopAccess();
+        }
+        else
+        {
+            sigfox.setCredentials(user.text, pwd.text);
+            sigfox.startAccess();
         }
     }
 
@@ -100,8 +117,9 @@ Page {
                     height: 70
                     text: qsTr("Connexion")
                     enabled: !user.text && !pwd.text ? false : true
+                    Material.background: sigfox.getStatus() ? Material.Green : Material.Blue
                     onReleased: {
-                        sigfox.setCredentials(user.text, pwd.text);
+                        connectManager();
                     }
                 }
             }
