@@ -1,4 +1,4 @@
-# La-haut
+# Là-haut
 
 Android application to retrieve sigfox data from a weather balloon.
 
